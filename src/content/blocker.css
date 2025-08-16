@@ -1,0 +1,316 @@
+/* Focus Guard Blocking Overlay Styles */
+
+.focus-guard-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  z-index: 2147483647 !important; /* Maximum z-index */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  color: white !important;
+  margin: 0 !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+  overflow: auto !important;
+}
+
+.focus-guard-content {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #333 !important;
+  border-radius: 20px !important;
+  padding: 40px !important;
+  max-width: 600px !important;
+  width: 100% !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+  text-align: center !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  animation: focus-guard-fade-in 0.5s ease-out !important;
+}
+
+@keyframes focus-guard-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.focus-guard-header {
+  margin-bottom: 30px !important;
+}
+
+.focus-guard-icon {
+  font-size: 64px !important;
+  margin-bottom: 16px !important;
+  opacity: 0.8 !important;
+}
+
+.focus-guard-title {
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  color: #374151 !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+}
+
+.focus-guard-body {
+  margin-bottom: 40px !important;
+}
+
+.focus-guard-message {
+  font-size: 18px !important;
+  color: #6b7280 !important;
+  margin-bottom: 24px !important;
+  line-height: 1.5 !important;
+}
+
+.focus-guard-details {
+  background: #f9fafb !important;
+  border-radius: 12px !important;
+  padding: 24px !important;
+  margin-bottom: 24px !important;
+  text-align: left !important;
+}
+
+.focus-guard-confidence {
+  font-size: 16px !important;
+  margin-bottom: 16px !important;
+  padding: 12px 16px !important;
+  background: #fef3c7 !important;
+  border: 1px solid #fbbf24 !important;
+  border-radius: 8px !important;
+  color: #92400e !important;
+}
+
+.focus-guard-goals {
+  font-size: 16px !important;
+  color: #374151 !important;
+}
+
+.focus-guard-goals strong {
+  display: block !important;
+  margin-bottom: 12px !important;
+  color: #1f2937 !important;
+}
+
+.focus-guard-goals-list {
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  max-height: 150px !important;
+  overflow-y: auto !important;
+}
+
+.focus-guard-goal-item {
+  padding: 6px 0 !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  color: #4b5563 !important;
+  line-height: 1.4 !important;
+}
+
+.focus-guard-goal-item:last-child {
+  border-bottom: none !important;
+}
+
+.focus-guard-no-goals {
+  color: #9ca3af !important;
+  font-style: italic !important;
+  text-align: center !important;
+  padding: 20px !important;
+}
+
+.focus-guard-error {
+  color: #dc2626 !important;
+  text-align: center !important;
+  padding: 20px !important;
+}
+
+.focus-guard-actions {
+  display: flex !important;
+  gap: 16px !important;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 30px !important;
+}
+
+.focus-guard-btn {
+  padding: 14px 28px !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+  min-width: 160px !important;
+}
+
+.focus-guard-btn-bypass {
+  background: #ef4444 !important;
+  color: white !important;
+}
+
+.focus-guard-btn-bypass:hover {
+  background: #dc2626 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3) !important;
+}
+
+.focus-guard-btn-secondary {
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+  border: 1px solid #d1d5db !important;
+}
+
+.focus-guard-btn-secondary:hover {
+  background: #e5e7eb !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.focus-guard-footer {
+  color: #9ca3af !important;
+  font-size: 14px !important;
+  opacity: 0.8 !important;
+}
+
+/* Scrollbar for goals list */
+.focus-guard-goals-list::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.focus-guard-goals-list::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+  border-radius: 3px !important;
+}
+
+.focus-guard-goals-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1 !important;
+  border-radius: 3px !important;
+}
+
+.focus-guard-goals-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8 !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .focus-guard-content {
+    padding: 24px !important;
+    margin: 20px !important;
+    max-width: calc(100vw - 40px) !important;
+  }
+  
+  .focus-guard-title {
+    font-size: 24px !important;
+  }
+  
+  .focus-guard-message {
+    font-size: 16px !important;
+  }
+  
+  .focus-guard-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .focus-guard-btn {
+    width: 100% !important;
+    min-width: unset !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .focus-guard-overlay {
+    background: #000 !important;
+  }
+  
+  .focus-guard-content {
+    background: #fff !important;
+    border: 3px solid #000 !important;
+  }
+  
+  .focus-guard-btn-bypass {
+    background: #d00 !important;
+  }
+  
+  .focus-guard-btn-secondary {
+    background: #fff !important;
+    border: 2px solid #000 !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .focus-guard-content {
+    animation: none !important;
+  }
+  
+  .focus-guard-btn:hover {
+    transform: none !important;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .focus-guard-content {
+    background: rgba(31, 41, 55, 0.95) !important;
+    color: #f9fafb !important;
+  }
+  
+  .focus-guard-title {
+    color: #f9fafb !important;
+  }
+  
+  .focus-guard-message {
+    color: #d1d5db !important;
+  }
+  
+  .focus-guard-details {
+    background: #374151 !important;
+    border: 1px solid #4b5563 !important;
+  }
+  
+  .focus-guard-goals {
+    color: #f3f4f6 !important;
+  }
+  
+  .focus-guard-goals strong {
+    color: #f9fafb !important;
+  }
+  
+  .focus-guard-goals-list {
+    background: #1f2937 !important;
+    border: 1px solid #4b5563 !important;
+  }
+  
+  .focus-guard-goal-item {
+    color: #d1d5db !important;
+    border-bottom-color: #374151 !important;
+  }
+  
+  .focus-guard-confidence {
+    background: #451a03 !important;
+    border: 1px solid #92400e !important;
+    color: #fbbf24 !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .focus-guard-overlay {
+    display: none !important;
+  }
+}

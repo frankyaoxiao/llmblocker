@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Guard</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <div class="header">
+      <h1 class="title">Focus Guard</h1>
+      <div class="status-indicator">
+        <div id="status-dot" class="status-dot enabled"></div>
+        <span id="status-text" class="status-text">Enabled</span>
+      </div>
+    </div>
+
+    <!-- Quick Toggle -->
+    <div class="toggle-section">
+      <button id="toggle-extension" class="toggle-btn enabled">
+        <span id="toggle-text">Disable Extension</span>
+      </button>
+    </div>
+
+    <!-- Goals Section -->
+    <div class="goals-section">
+      <div class="section-header">
+        <h2>Current Goals</h2>
+        <span id="goals-count" class="goals-count">0/10</span>
+      </div>
+
+      <!-- Add Goal Form -->
+      <div class="add-goal-form">
+        <div class="input-group">
+          <input 
+            type="text" 
+            id="goal-input" 
+            placeholder="What are you trying to accomplish?"
+            maxlength="200"
+          />
+          <button id="add-goal-btn" class="add-btn" disabled>Add</button>
+        </div>
+        <div id="input-error" class="error-message hidden"></div>
+      </div>
+
+      <!-- Goals List -->
+      <div id="goals-list" class="goals-list">
+        <!-- Goals will be dynamically inserted here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-goals" class="empty-state">
+        <div class="empty-icon">🎯</div>
+        <p>No goals set yet.</p>
+        <p class="empty-subtitle">Add your first goal to get started!</p>
+      </div>
+    </div>
+
+    <!-- Settings Link -->
+    <div class="settings-section">
+      <button id="settings-btn" class="settings-btn">
+        ⚙️ Settings & API Configuration
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="stats">
+        <span id="pages-analyzed">Pages analyzed: 0</span>
+        <span id="pages-blocked">Blocked: 0</span>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
