@@ -20,14 +20,14 @@
     <!-- Quick Toggle -->
     <div class="toggle-section">
       <button id="toggle-extension" class="toggle-btn enabled">
-        <span id="toggle-text">Disable Extension</span>
+        <span id="toggle-text">Disable</span>
       </button>
     </div>
 
     <!-- Goals Section -->
     <div class="goals-section">
       <div class="section-header">
-        <h2>Current Goals</h2>
+        <h2>Goals</h2>
         <span id="goals-count" class="goals-count">0/10</span>
       </div>
 
@@ -37,7 +37,7 @@
           <input 
             type="text" 
             id="goal-input" 
-            placeholder="What are you trying to accomplish?"
+            placeholder="Add a goal..."
             maxlength="200"
           />
           <button id="add-goal-btn" class="add-btn" disabled>Add</button>
@@ -52,24 +52,22 @@
 
       <!-- Empty State -->
       <div id="empty-goals" class="empty-state">
-        <div class="empty-icon">🎯</div>
-        <p>No goals set yet.</p>
-        <p class="empty-subtitle">Add your first goal to get started!</p>
+        <p>No goals set</p>
       </div>
     </div>
 
     <!-- Settings Link -->
     <div class="settings-section">
       <button id="settings-btn" class="settings-btn">
-        ⚙️ Settings & API Configuration
+        Settings
       </button>
     </div>
 
     <!-- Footer -->
     <div class="footer">
       <div class="stats">
-        <span id="pages-analyzed">Pages analyzed: 0</span>
-        <span id="pages-blocked">Blocked: 0</span>
+        <span id="pages-analyzed">0 analyzed</span>
+        <span id="pages-blocked">0 blocked</span>
       </div>
     </div>
   </div>

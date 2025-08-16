@@ -125,13 +125,12 @@ class PopupController {
     
     return `
       <div class="goal-item" data-goal-id="${goal.id}">
-        <div class="goal-icon">🎯</div>
         <div class="goal-content">
           <div class="goal-text">${this.escapeHtml(goal.text)}</div>
-          <div class="goal-meta">Added ${createdDate}</div>
+          <div class="goal-meta">${createdDate}</div>
         </div>
         <div class="goal-actions">
-          <button class="goal-btn delete-btn" title="Remove goal">🗑️</button>
+          <button class="goal-btn delete-btn" title="Remove goal">×</button>
         </div>
       </div>
     `;

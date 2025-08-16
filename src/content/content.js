@@ -199,8 +199,8 @@ class ContentAnalyzer {
     overlay.innerHTML = `
       <div class="focus-guard-content">
         <div class="focus-guard-header">
-          <div class="focus-guard-icon">🚫</div>
-          <h1 class="focus-guard-title">Page Blocked by Focus Guard</h1>
+          <div class="focus-guard-icon"></div>
+          <h1 class="focus-guard-title">Page blocked</h1>
         </div>
         
         <div class="focus-guard-body">
@@ -224,15 +224,15 @@ class ContentAnalyzer {
         
         <div class="focus-guard-actions">
           <button class="focus-guard-btn focus-guard-btn-bypass" id="focus-guard-bypass">
-            I think this is a mistake - bypass
+            Continue anyway
           </button>
           <button class="focus-guard-btn focus-guard-btn-secondary" id="focus-guard-back">
-            ← Go back
+            Go back
           </button>
         </div>
         
         <div class="focus-guard-footer">
-          <small>Focus Guard • AI-powered distraction blocking</small>
+          <small>Focus Guard</small>
         </div>
       </div>
     `;
