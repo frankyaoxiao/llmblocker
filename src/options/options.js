@@ -90,12 +90,14 @@ class OptionsController {
    */
   async loadData() {
     try {
-      [this.settings, this.analytics, this.goals] = await Promise.all([
+      [this.settings, this.analytics, this.goals, this.tokenUsage] = await Promise.all([
         StorageManager.getSettings(),
         StorageManager.getAnalytics(),
-        StorageManager.getGoals()
+        StorageManager.getGoals(),
+        StorageManager.getTokenUsage(7) // Last 7 days
       ]);
 
+      console.log('[Focus Guard] Options page loaded settings:', this.settings);
       this.updateUI();
     } catch (error) {
       Utils.log('error', 'Failed to load options data', error);
@@ -114,6 +116,7 @@ class OptionsController {
     this.updateExtensionToggle();
     this.updateAdvancedSettings();
     this.updateStatistics();
+    this.updateTokenUsage();
     this.updateProviderDocs();
   }
 
@@ -123,7 +126,11 @@ class OptionsController {
   updateProviderSelection() {
     const providerSelect = document.getElementById('provider-select');
     providerSelect.value = this.settings.provider || '';
-    this.handleProviderChange(this.settings.provider);
+    // Don't call handleProviderChange during initialization - it resets model/apiKey
+    // Just update the dependent UI elements directly
+    this.updateModelSelection();
+    this.updateApiKey();
+    this.updateProviderDocs();
   }
 
   /**
@@ -172,7 +179,7 @@ class OptionsController {
     const thresholdSlider = document.getElementById('confidence-threshold');
     const thresholdValue = document.getElementById('threshold-value');
     
-    const threshold = this.settings.confidenceThreshold || 60;
+    const threshold = this.settings.confidenceThreshold || CONSTANTS.DEFAULT_SETTINGS.confidenceThreshold;
     thresholdSlider.value = threshold;
     thresholdValue.textContent = threshold;
   }
@@ -204,6 +211,93 @@ class OptionsController {
     document.getElementById('blocked-pages').textContent = this.analytics.blockedPages || 0;
     document.getElementById('bypassed-pages').textContent = this.analytics.bypassedPages || 0;
     document.getElementById('current-goals').textContent = this.goals.length || 0;
+  }
+
+  /**
+   * Update token usage display
+   */
+  updateTokenUsage() {
+    try {
+      const totalUsage = StorageManager.calculateTotalTokenUsage(this.tokenUsage || {});
+      
+      // Update total token stats
+      document.getElementById('total-input-tokens').textContent = 
+        this.formatTokenCount(totalUsage.inputTokens);
+      document.getElementById('total-output-tokens').textContent = 
+        this.formatTokenCount(totalUsage.outputTokens);
+      document.getElementById('total-api-requests').textContent = 
+        totalUsage.requests.toLocaleString();
+      
+      // Update provider breakdown
+      this.updateProviderBreakdown(totalUsage.byProvider);
+    } catch (error) {
+      console.error('[Focus Guard] Failed to update token usage:', error);
+    }
+  }
+
+  /**
+   * Update provider breakdown display
+   */
+  updateProviderBreakdown(providerUsage) {
+    const breakdownContainer = document.getElementById('provider-breakdown');
+    
+    if (!providerUsage || Object.keys(providerUsage).length === 0) {
+      breakdownContainer.innerHTML = '<div class="no-usage">No token usage data yet</div>';
+      return;
+    }
+    
+    const providers = Object.entries(providerUsage)
+      .filter(([_, usage]) => usage.requests > 0)
+      .sort(([, a], [, b]) => b.totalTokens - a.totalTokens);
+    
+    if (providers.length === 0) {
+      breakdownContainer.innerHTML = '<div class="no-usage">No token usage data yet</div>';
+      return;
+    }
+    
+    breakdownContainer.innerHTML = providers.map(([provider, usage]) => `
+      <div class="provider-usage">
+        <div class="provider-name">${this.getProviderDisplayName(provider)}</div>
+        <div class="provider-stats">
+          <span class="provider-stat">
+            <span class="stat-number">${this.formatTokenCount(usage.inputTokens)}</span>
+            <span class="stat-label">in</span>
+          </span>
+          <span class="provider-stat">
+            <span class="stat-number">${this.formatTokenCount(usage.outputTokens)}</span>
+            <span class="stat-label">out</span>
+          </span>
+          <span class="provider-stat">
+            <span class="stat-number">${usage.requests.toLocaleString()}</span>
+            <span class="stat-label">requests</span>
+          </span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /**
+   * Format token count for display
+   */
+  formatTokenCount(count) {
+    if (count >= 1000000) {
+      return (count / 1000000).toFixed(1) + 'M';
+    } else if (count >= 1000) {
+      return (count / 1000).toFixed(1) + 'K';
+    }
+    return count.toLocaleString();
+  }
+
+  /**
+   * Get display name for provider
+   */
+  getProviderDisplayName(provider) {
+    const displayNames = {
+      openrouter: 'OpenRouter',
+      openai: 'OpenAI',
+      anthropic: 'Anthropic'
+    };
+    return displayNames[provider] || provider;
   }
 
   /**

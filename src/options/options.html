@@ -173,6 +173,30 @@
           </div>
         </div>
 
+        <!-- Token Usage Section -->
+        <div class="token-usage-section">
+          <h3>Token Usage (Last 7 Days)</h3>
+          
+          <div class="token-stats-grid">
+            <div class="token-stat-card">
+              <div class="token-stat-value" id="total-input-tokens">0</div>
+              <div class="token-stat-label">Input Tokens</div>
+            </div>
+            <div class="token-stat-card">
+              <div class="token-stat-value" id="total-output-tokens">0</div>
+              <div class="token-stat-label">Output Tokens</div>
+            </div>
+            <div class="token-stat-card">
+              <div class="token-stat-value" id="total-api-requests">0</div>
+              <div class="token-stat-label">API Requests</div>
+            </div>
+          </div>
+
+          <div class="provider-breakdown" id="provider-breakdown">
+            <!-- Provider-specific token usage will be populated here -->
+          </div>
+        </div>
+
         <div class="form-group">
           <button id="reset-stats" class="btn btn-secondary">
             Reset Statistics

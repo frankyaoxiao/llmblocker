@@ -235,4 +235,66 @@ class StorageManager {
       throw error;
     }
   }
+
+  /**
+   * Get token usage for the last N days
+   */
+  static async getTokenUsage(days = 7) {
+    try {
+      const keys = [];
+      const today = new Date();
+      
+      for (let i = 0; i < days; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        keys.push(`tokenUsage_${date.toISOString().split('T')[0]}`);
+      }
+      
+      const result = await chrome.storage.local.get(keys);
+      return result;
+    } catch (error) {
+      console.error('Error getting token usage:', error);
+      return {};
+    }
+  }
+
+  /**
+   * Calculate total token usage across all providers and days
+   */
+  static calculateTotalTokenUsage(tokenUsageData) {
+    const totals = {
+      inputTokens: 0,
+      outputTokens: 0,
+      totalTokens: 0,
+      requests: 0,
+      byProvider: {}
+    };
+    
+    Object.values(tokenUsageData).forEach(dayData => {
+      if (dayData && typeof dayData === 'object') {
+        Object.entries(dayData).forEach(([provider, usage]) => {
+          if (!totals.byProvider[provider]) {
+            totals.byProvider[provider] = {
+              inputTokens: 0,
+              outputTokens: 0,
+              totalTokens: 0,
+              requests: 0
+            };
+          }
+          
+          totals.inputTokens += usage.inputTokens || 0;
+          totals.outputTokens += usage.outputTokens || 0;
+          totals.totalTokens += usage.totalTokens || 0;
+          totals.requests += usage.requests || 0;
+          
+          totals.byProvider[provider].inputTokens += usage.inputTokens || 0;
+          totals.byProvider[provider].outputTokens += usage.outputTokens || 0;
+          totals.byProvider[provider].totalTokens += usage.totalTokens || 0;
+          totals.byProvider[provider].requests += usage.requests || 0;
+        });
+      }
+    });
+    
+    return totals;
+  }
 }

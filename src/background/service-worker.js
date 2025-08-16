@@ -303,6 +303,68 @@ class StorageManager {
       throw error;
     }
   }
+
+  /**
+   * Get token usage for the last N days
+   */
+  static async getTokenUsage(days = 7) {
+    try {
+      const keys = [];
+      const today = new Date();
+      
+      for (let i = 0; i < days; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        keys.push(`tokenUsage_${date.toISOString().split('T')[0]}`);
+      }
+      
+      const result = await chrome.storage.local.get(keys);
+      return result;
+    } catch (error) {
+      console.error('Error getting token usage:', error);
+      return {};
+    }
+  }
+
+  /**
+   * Calculate total token usage across all providers and days
+   */
+  static calculateTotalTokenUsage(tokenUsageData) {
+    const totals = {
+      inputTokens: 0,
+      outputTokens: 0,
+      totalTokens: 0,
+      requests: 0,
+      byProvider: {}
+    };
+    
+    Object.values(tokenUsageData).forEach(dayData => {
+      if (dayData && typeof dayData === 'object') {
+        Object.entries(dayData).forEach(([provider, usage]) => {
+          if (!totals.byProvider[provider]) {
+            totals.byProvider[provider] = {
+              inputTokens: 0,
+              outputTokens: 0,
+              totalTokens: 0,
+              requests: 0
+            };
+          }
+          
+          totals.inputTokens += usage.inputTokens || 0;
+          totals.outputTokens += usage.outputTokens || 0;
+          totals.totalTokens += usage.totalTokens || 0;
+          totals.requests += usage.requests || 0;
+          
+          totals.byProvider[provider].inputTokens += usage.inputTokens || 0;
+          totals.byProvider[provider].outputTokens += usage.outputTokens || 0;
+          totals.byProvider[provider].totalTokens += usage.totalTokens || 0;
+          totals.byProvider[provider].requests += usage.requests || 0;
+        });
+      }
+    });
+    
+    return totals;
+  }
 }
 
 /**
@@ -378,7 +440,15 @@ class OpenRouterProvider extends LLMProvider {
     });
 
     const data = await this.handleResponse(response);
-    return data.choices[0]?.message?.content || '';
+    
+    return {
+      content: data.choices[0]?.message?.content || '',
+      tokenUsage: {
+        inputTokens: data.usage?.prompt_tokens || 0,
+        outputTokens: data.usage?.completion_tokens || 0,
+        totalTokens: data.usage?.total_tokens || 0
+      }
+    };
   }
 }
 
@@ -432,7 +502,15 @@ class OpenAIProvider extends LLMProvider {
     });
 
     const data = await this.handleResponse(response);
-    return data.choices[0]?.message?.content || '';
+    
+    return {
+      content: data.choices[0]?.message?.content || '',
+      tokenUsage: {
+        inputTokens: data.usage?.prompt_tokens || 0,
+        outputTokens: data.usage?.completion_tokens || 0,
+        totalTokens: data.usage?.total_tokens || 0
+      }
+    };
   }
 }
 
@@ -471,7 +549,15 @@ class AnthropicProvider extends LLMProvider {
     });
 
     const data = await this.handleResponse(response);
-    return data.content[0]?.text || '';
+    
+    return {
+      content: data.content[0]?.text || '',
+      tokenUsage: {
+        inputTokens: data.usage?.input_tokens || 0,
+        outputTokens: data.usage?.output_tokens || 0,
+        totalTokens: (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0)
+      }
+    };
   }
 }
 
@@ -496,6 +582,37 @@ class LLMClient {
         return new AnthropicProvider(apiKey, model);
       default:
         throw new Error(`Unknown provider: ${provider}`);
+    }
+  }
+
+  /**
+   * Store token usage for analytics
+   */
+  async storeTokenUsage(tokenUsage, provider) {
+    try {
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+      const key = `tokenUsage_${today}`;
+      
+      const result = await chrome.storage.local.get(key);
+      const dailyUsage = result[key] || {};
+      
+      if (!dailyUsage[provider]) {
+        dailyUsage[provider] = {
+          inputTokens: 0,
+          outputTokens: 0,
+          totalTokens: 0,
+          requests: 0
+        };
+      }
+      
+      dailyUsage[provider].inputTokens += tokenUsage.inputTokens;
+      dailyUsage[provider].outputTokens += tokenUsage.outputTokens;
+      dailyUsage[provider].totalTokens += tokenUsage.totalTokens;
+      dailyUsage[provider].requests += 1;
+      
+      await chrome.storage.local.set({ [key]: dailyUsage });
+    } catch (error) {
+      console.error('[Focus Guard] Failed to store token usage:', error);
     }
   }
 
@@ -568,8 +685,13 @@ class LLMClient {
 
       console.log('[Focus Guard] LLM response received', { duration, response });
 
+      // Store token usage
+      if (response.tokenUsage) {
+        await this.storeTokenUsage(response.tokenUsage, settings.provider);
+      }
+
       // Parse confidence score
-      const confidence = Utils.parseConfidenceScore(response);
+      const confidence = Utils.parseConfidenceScore(response.content);
       if (confidence === null) {
         throw new Error('Invalid confidence score in response');
       }
