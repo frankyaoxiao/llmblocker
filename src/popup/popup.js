@@ -1,3 +1,8 @@
+// Firefox compatibility: ensure chrome API is available
+if (typeof browser !== 'undefined' && typeof chrome === 'undefined') {
+  globalThis.chrome = browser;
+}
+
 /**
  * Popup UI Controller
  */
