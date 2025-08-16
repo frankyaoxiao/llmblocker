@@ -226,21 +226,32 @@ class OptionsController {
    * Handle provider change
    */
   handleProviderChange(provider) {
-    this.debouncedSave({
-      provider: provider,
-      model: '', // Reset model when provider changes
-      apiKey: '' // Reset API key when provider changes
-    });
-
+    // Update settings immediately for UI updates
+    this.settings.provider = provider;
+    this.settings.model = ''; // Reset model when provider changes  
+    this.settings.apiKey = ''; // Reset API key when provider changes
+    
+    // Update UI immediately with new provider
     this.updateModelSelection();
     this.updateApiKey();
     this.updateProviderDocs();
+    
+    // Save to storage with debounce
+    this.debouncedSave({
+      provider: provider,
+      model: '',
+      apiKey: ''
+    });
   }
 
   /**
    * Handle model change
    */
   handleModelChange(model) {
+    // Update settings immediately for UI consistency
+    this.settings.model = model;
+    
+    // Save to storage with debounce
     this.debouncedSave({ model });
   }
 
@@ -249,6 +260,11 @@ class OptionsController {
    */
   handleApiKeyChange() {
     const apiKey = document.getElementById('api-key').value;
+    
+    // Update settings immediately for UI consistency
+    this.settings.apiKey = apiKey;
+    
+    // Save to storage with debounce
     this.debouncedSave({ apiKey });
     this.clearApiStatus();
   }

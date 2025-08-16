@@ -44,11 +44,16 @@ const CONSTANTS = {
         'openai/gpt-5-nano',
         'anthropic/claude-opus-4.1',
         'anthropic/claude-sonnet-4',
-        'openai/gpt-4o',
-        'openai/gpt-4o-mini',
-        'anthropic/claude-3-5-sonnet',
-        'meta-llama/llama-3.1-70b-instruct',
-        'google/gemini-pro-1.5'
+        'google/gemini-2.5-pro',
+        'google/gemini-2.0-flash-thinking-exp',
+        'meta-llama/llama-3.3-70b-instruct',
+        'meta-llama/llama-4-maverick',
+        'qwen/qwen2.5-vl-3b-instruct',
+        'qwen/qwq-32b',
+        'deepseek/deepseek-r1',
+        'deepseek/deepseek-chat-v3',
+        'nvidia/llama-3.1-nemotron-ultra-253b-v1',
+        'google/gemma-3-27b-it'
       ],
       keyRequired: true
     },
@@ -58,10 +63,7 @@ const CONSTANTS = {
       models: [
         'gpt-5',
         'gpt-5-mini',
-        'gpt-5-nano', 
-        'gpt-5-chat-latest',
-        'gpt-4o',
-        'gpt-4o-mini'
+        'gpt-5-nano'
       ],
       keyRequired: true
     },
@@ -70,9 +72,7 @@ const CONSTANTS = {
       baseUrl: 'https://api.anthropic.com',
       models: [
         'claude-opus-4.1',
-        'claude-sonnet-4',
-        'claude-3-5-sonnet-20241022',
-        'claude-3-5-haiku-20241022'
+        'claude-sonnet-4'
       ],
       keyRequired: true
     }
