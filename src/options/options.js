@@ -11,7 +11,10 @@ class OptionsController {
     this.settings = {};
     this.analytics = {};
     this.goals = [];
+    this.whitelist = [];
     this.saveTimeout = null;
+    this.providerSettings = {}; // Store per-provider settings
+    this.currentTab = 'ai-provider';
     
     this.initializeEventListeners();
     this.loadData();
@@ -21,6 +24,13 @@ class OptionsController {
    * Initialize all event listeners
    */
   initializeEventListeners() {
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        this.switchTab(e.target.dataset.tab);
+      });
+    });
+
     // Provider selection
     document.getElementById('provider-select').addEventListener('change', (e) => {
       this.handleProviderChange(e.target.value);
@@ -83,6 +93,21 @@ class OptionsController {
     document.getElementById('reset-all').addEventListener('click', () => {
       this.resetAllData();
     });
+
+    // Whitelist management
+    document.getElementById('add-domain-btn').addEventListener('click', () => {
+      this.handleAddDomain();
+    });
+    
+    document.getElementById('domain-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        this.handleAddDomain();
+      }
+    });
+    
+    document.getElementById('domain-input').addEventListener('input', () => {
+      this.clearDomainError();
+    });
   }
 
   /**
@@ -90,12 +115,21 @@ class OptionsController {
    */
   async loadData() {
     try {
-      [this.settings, this.analytics, this.goals, this.tokenUsage] = await Promise.all([
+      [this.settings, this.analytics, this.goals, this.whitelist, this.tokenUsage] = await Promise.all([
         StorageManager.getSettings(),
         StorageManager.getAnalytics(),
         StorageManager.getGoals(),
+        StorageManager.getWhitelist(),
         StorageManager.getTokenUsage(7) // Last 7 days
       ]);
+
+      // Initialize provider settings cache with current settings
+      if (this.settings.provider) {
+        this.providerSettings[this.settings.provider] = {
+          model: this.settings.model || '',
+          apiKey: this.settings.apiKey || ''
+        };
+      }
 
       console.log('[Focus Guard] Options page loaded settings:', this.settings);
       this.updateUI();
@@ -117,6 +151,7 @@ class OptionsController {
     this.updateAdvancedSettings();
     this.updateStatistics();
     this.updateTokenUsage();
+    this.updateWhitelist();
     this.updateProviderDocs();
   }
 
@@ -301,6 +336,131 @@ class OptionsController {
   }
 
   /**
+   * Get default model for a provider
+   */
+  getDefaultModelForProvider(provider) {
+    const defaults = {
+      openrouter: 'openai/gpt-5-mini',
+      openai: 'gpt-5-mini',
+      anthropic: 'claude-sonnet-4'
+    };
+    return defaults[provider] || '';
+  }
+
+  /**
+   * Switch to a different tab
+   */
+  switchTab(tabId) {
+    // Update tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tabId);
+    });
+    
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.classList.toggle('active', content.id === `${tabId}-tab`);
+    });
+    
+    this.currentTab = tabId;
+  }
+
+  /**
+   * Update whitelist display
+   */
+  updateWhitelist() {
+    const count = this.whitelist.length;
+    const maxCount = CONSTANTS.UI.MAX_WHITELIST_COUNT;
+    
+    // Update count
+    document.getElementById('whitelist-count').textContent = count;
+    
+    // Update list
+    const listContainer = document.getElementById('whitelist-list');
+    const emptyState = document.getElementById('empty-whitelist');
+    
+    if (count === 0) {
+      listContainer.style.display = 'none';
+      emptyState.style.display = 'block';
+    } else {
+      listContainer.style.display = 'block';
+      emptyState.style.display = 'none';
+      
+      listContainer.innerHTML = this.whitelist.map(domain => `
+        <div class="whitelist-item">
+          <span class="whitelist-domain">${domain}</span>
+          <button class="whitelist-remove" data-domain="${domain}">Remove</button>
+        </div>
+      `).join('');
+      
+      // Add remove event listeners
+      listContainer.querySelectorAll('.whitelist-remove').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          this.handleRemoveDomain(e.target.dataset.domain);
+        });
+      });
+    }
+    
+    // Update add button state
+    const addBtn = document.getElementById('add-domain-btn');
+    addBtn.disabled = count >= maxCount;
+  }
+
+  /**
+   * Handle adding domain to whitelist
+   */
+  async handleAddDomain() {
+    const input = document.getElementById('domain-input');
+    const domain = input.value.trim();
+    
+    if (!domain) {
+      this.showDomainError('Please enter a domain');
+      return;
+    }
+    
+    try {
+      this.whitelist = await StorageManager.addToWhitelist(domain);
+      input.value = '';
+      this.updateWhitelist();
+      this.clearDomainError();
+      this.showStatus('Domain added to whitelist', 'saved');
+    } catch (error) {
+      console.error('[Focus Guard] Failed to add domain:', error);
+      this.showDomainError(error.message);
+    }
+  }
+
+  /**
+   * Handle removing domain from whitelist
+   */
+  async handleRemoveDomain(domain) {
+    try {
+      this.whitelist = await StorageManager.removeFromWhitelist(domain);
+      this.updateWhitelist();
+      this.showStatus('Domain removed from whitelist', 'saved');
+    } catch (error) {
+      console.error('[Focus Guard] Failed to remove domain:', error);
+      this.showStatus('Failed to remove domain', 'error');
+    }
+  }
+
+  /**
+   * Show domain error message
+   */
+  showDomainError(message) {
+    const errorElement = document.getElementById('domain-error');
+    errorElement.textContent = message;
+    errorElement.classList.remove('hidden');
+  }
+
+  /**
+   * Clear domain error message
+   */
+  clearDomainError() {
+    const errorElement = document.getElementById('domain-error');
+    errorElement.classList.add('hidden');
+  }
+
+  /**
    * Update provider documentation link
    */
   updateProviderDocs() {
@@ -325,10 +485,27 @@ class OptionsController {
    * Handle provider change
    */
   handleProviderChange(provider) {
-    // Update settings immediately for UI updates
+    // Save current provider's settings before switching
+    if (this.settings.provider) {
+      this.providerSettings[this.settings.provider] = {
+        model: this.settings.model || '',
+        apiKey: this.settings.apiKey || ''
+      };
+    }
+    
+    // Update provider
     this.settings.provider = provider;
-    this.settings.model = ''; // Reset model when provider changes  
-    this.settings.apiKey = ''; // Reset API key when provider changes
+    
+    // Restore settings for the new provider if they exist
+    const savedSettings = this.providerSettings[provider];
+    if (savedSettings) {
+      this.settings.model = savedSettings.model;
+      this.settings.apiKey = savedSettings.apiKey;
+    } else {
+      // Set defaults for new provider
+      this.settings.model = this.getDefaultModelForProvider(provider);
+      this.settings.apiKey = '';
+    }
     
     // Update UI immediately with new provider
     this.updateModelSelection();
@@ -338,8 +515,8 @@ class OptionsController {
     // Save to storage with debounce
     this.debouncedSave({
       provider: provider,
-      model: '',
-      apiKey: ''
+      model: this.settings.model,
+      apiKey: this.settings.apiKey
     });
   }
 

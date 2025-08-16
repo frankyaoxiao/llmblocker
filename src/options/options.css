@@ -26,7 +26,7 @@ body {
 .header {
   background: #fff;
   color: #333;
-  padding: 40px 40px 32px;
+  padding: 40px 40px 24px;
   text-align: center;
   border-bottom: 1px solid #f0f0f0;
 }
@@ -44,9 +44,52 @@ body {
   font-weight: 400;
 }
 
+/* Tab Navigation */
+.tab-nav {
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 0 40px;
+  display: flex;
+  gap: 0;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 16px 24px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #999;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.tab-btn:hover {
+  color: #333;
+  background: #fafafa;
+}
+
+.tab-btn.active {
+  color: #333;
+  border-bottom-color: #333;
+  font-weight: 500;
+}
+
+/* Tab Content */
+.tab-content {
+  display: none;
+  padding: 40px;
+}
+
+.tab-content.active {
+  display: block;
+}
+
 /* Content */
 .content {
-  padding: 40px;
+  min-height: calc(100vh - 200px);
 }
 
 /* Sections */
@@ -430,6 +473,114 @@ body {
   font-size: 12px;
   font-style: italic;
   padding: 16px;
+}
+
+/* Whitelist Styles */
+.whitelist-container {
+  margin-top: 24px;
+}
+
+.whitelist-header {
+  margin-bottom: 16px;
+}
+
+.whitelist-header h3 {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+}
+
+.whitelist-list {
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.whitelist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f5f5f5;
+  background: white;
+  transition: background-color 0.15s ease;
+}
+
+.whitelist-item:last-child {
+  border-bottom: none;
+}
+
+.whitelist-item:hover {
+  background: #fafafa;
+}
+
+.whitelist-domain {
+  font-size: 13px;
+  color: #333;
+  font-family: monospace;
+  flex: 1;
+}
+
+.whitelist-remove {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  transition: all 0.15s ease;
+}
+
+.whitelist-remove:hover {
+  background: #f5f5f5;
+  color: #d32f2f;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+}
+
+.empty-state p {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+}
+
+.empty-subtitle {
+  font-size: 11px;
+  color: #bbb;
+}
+
+.btn-primary {
+  background: #333;
+  color: white;
+  border: 1px solid #333;
+}
+
+.btn-primary:hover {
+  background: #222;
+  border-color: #222;
+}
+
+.btn-primary:disabled {
+  background: #ddd;
+  color: #999;
+  border-color: #ddd;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: #f8f0f0;
+  border: 1px solid #e8d0d0;
+  color: #d32f2f;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-top: 8px;
 }
 
 /* Help Text */

@@ -297,4 +297,223 @@ class StorageManager {
     
     return totals;
   }
+
+  /**
+   * Get whitelist from storage
+   */
+  static async getWhitelist() {
+    try {
+      const result = await chrome.storage.sync.get(CONSTANTS.STORAGE_KEYS.WHITELIST);
+      return result[CONSTANTS.STORAGE_KEYS.WHITELIST] || [];
+    } catch (error) {
+      console.error('Error getting whitelist:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Save whitelist to storage
+   */
+  static async setWhitelist(whitelist) {
+    try {
+      // Validate whitelist
+      if (!Array.isArray(whitelist)) {
+        throw new Error('Whitelist must be an array');
+      }
+      
+      if (whitelist.length > CONSTANTS.UI.MAX_WHITELIST_COUNT) {
+        throw new Error(`Whitelist cannot exceed ${CONSTANTS.UI.MAX_WHITELIST_COUNT} domains`);
+      }
+      
+      // Validate each domain
+      const validatedDomains = whitelist.map(domain => {
+        const normalized = this.normalizeDomain(domain);
+        if (!this.isValidDomain(normalized)) {
+          throw new Error(`Invalid domain: ${domain}`);
+        }
+        return normalized;
+      });
+      
+      // Remove duplicates
+      const uniqueDomains = [...new Set(validatedDomains)];
+      
+      await chrome.storage.sync.set({
+        [CONSTANTS.STORAGE_KEYS.WHITELIST]: uniqueDomains
+      });
+      return uniqueDomains;
+    } catch (error) {
+      console.error('Error saving whitelist:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Add domain to whitelist
+   */
+  static async addToWhitelist(domain) {
+    try {
+      const whitelist = await this.getWhitelist();
+      const normalized = this.normalizeDomain(domain);
+      
+      if (!this.isValidDomain(normalized)) {
+        throw new Error(`Invalid domain: ${domain}`);
+      }
+      
+      if (whitelist.includes(normalized)) {
+        throw new Error('Domain already in whitelist');
+      }
+      
+      if (whitelist.length >= CONSTANTS.UI.MAX_WHITELIST_COUNT) {
+        throw new Error(`Whitelist cannot exceed ${CONSTANTS.UI.MAX_WHITELIST_COUNT} domains`);
+      }
+      
+      whitelist.push(normalized);
+      return await this.setWhitelist(whitelist);
+    } catch (error) {
+      console.error('Error adding to whitelist:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Remove domain from whitelist
+   */
+  static async removeFromWhitelist(domain) {
+    try {
+      const whitelist = await this.getWhitelist();
+      const normalized = this.normalizeDomain(domain);
+      const updatedWhitelist = whitelist.filter(d => d !== normalized);
+      return await this.setWhitelist(updatedWhitelist);
+    } catch (error) {
+      console.error('Error removing from whitelist:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Check if domain is whitelisted
+   */
+  static async isDomainWhitelisted(url) {
+    try {
+      const whitelist = await this.getWhitelist();
+      const domain = this.extractDomain(url);
+      
+      if (!domain) return false;
+      
+      // Check exact match first
+      if (whitelist.includes(domain)) {
+        return true;
+      }
+      
+      // Check if any whitelisted domain is a parent domain
+      return whitelist.some(whitelistedDomain => {
+        // Allow subdomains: if whitelist has "example.com", allow "sub.example.com"
+        return domain === whitelistedDomain || domain.endsWith('.' + whitelistedDomain);
+      });
+    } catch (error) {
+      console.error('Error checking whitelist:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Normalize domain (remove protocol, www, trailing slash, etc.)
+   */
+  static normalizeDomain(input) {
+    if (!input || typeof input !== 'string') {
+      return '';
+    }
+    
+    let domain = input.toLowerCase().trim();
+    
+    // Remove protocol
+    domain = domain.replace(/^https?:\/\//, '');
+    
+    // Remove www prefix
+    domain = domain.replace(/^www\./, '');
+    
+    // Remove path, query, and fragment
+    domain = domain.split('/')[0].split('?')[0].split('#')[0];
+    
+    // Remove port
+    domain = domain.split(':')[0];
+    
+    return domain;
+  }
+
+  /**
+   * Extract domain from URL
+   */
+  static extractDomain(url) {
+    try {
+      if (!url) return null;
+      
+      // Handle relative URLs
+      if (!url.includes('://')) {
+        url = 'https://' + url;
+      }
+      
+      const urlObj = new URL(url);
+      return this.normalizeDomain(urlObj.hostname);
+    } catch (error) {
+      // Fallback to manual parsing
+      return this.normalizeDomain(url);
+    }
+  }
+
+  /**
+   * Validate domain format
+   */
+  static isValidDomain(domain) {
+    if (!domain || typeof domain !== 'string') {
+      return false;
+    }
+    
+    // Basic length check
+    if (domain.length > CONSTANTS.WHITELIST.MAX_DOMAIN_LENGTH || domain.length < 1) {
+      return false;
+    }
+    
+    // Check for invalid characters
+    if (!/^[a-zA-Z0-9.-]+$/.test(domain)) {
+      return false;
+    }
+    
+    // Must contain at least one dot
+    if (!domain.includes('.')) {
+      return false;
+    }
+    
+    // Cannot start or end with dot or dash
+    if (domain.startsWith('.') || domain.endsWith('.') || 
+        domain.startsWith('-') || domain.endsWith('-')) {
+      return false;
+    }
+    
+    // Cannot have consecutive dots
+    if (domain.includes('..')) {
+      return false;
+    }
+    
+    // Split into parts and validate each
+    const parts = domain.split('.');
+    if (parts.length < 2) {
+      return false;
+    }
+    
+    // Each part must be valid
+    for (const part of parts) {
+      if (!part || part.length > 63) {
+        return false;
+      }
+      if (!/^[a-zA-Z0-9-]+$/.test(part)) {
+        return false;
+      }
+      if (part.startsWith('-') || part.endsWith('-')) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
 }

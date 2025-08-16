@@ -9,7 +9,8 @@ const CONSTANTS = {
   STORAGE_KEYS: {
     GOALS: 'focus_guard_goals',
     SETTINGS: 'focus_guard_settings',
-    ANALYTICS: 'focus_guard_analytics'
+    ANALYTICS: 'focus_guard_analytics',
+    WHITELIST: 'focus_guard_whitelist'
   },
 
   // Message types for cross-component communication
@@ -95,7 +96,15 @@ const CONSTANTS = {
   UI: {
     BLOCKING_OVERLAY_ID: 'focus-guard-overlay',
     MAX_GOAL_LENGTH: 200,
-    MAX_GOALS_COUNT: 10
+    MAX_GOALS_COUNT: 10,
+    MAX_WHITELIST_COUNT: 50
+  },
+
+  // Whitelist settings
+  WHITELIST: {
+    DOMAIN_REGEX: /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+(com|org|net|edu|gov|mil|co|uk|ca|au|de|fr|jp|cn|in|br|ru|mx|es|it|nl|se|no|dk|fi|be|at|ch|pl|cz|hu|gr|pt|ie|il|za|tr|kr|th|my|sg|th|vn)$/i,
+    SUBDOMAIN_REGEX: /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)*/,
+    MAX_DOMAIN_LENGTH: 253
   },
 
   // API settings

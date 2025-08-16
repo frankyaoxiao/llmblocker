@@ -14,217 +14,269 @@
       <p class="subtitle">Configure your AI-powered web filtering</p>
     </header>
 
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="ai-provider">AI Provider</button>
+      <button class="tab-btn" data-tab="whitelist">Whitelist</button>
+      <button class="tab-btn" data-tab="statistics">Statistics</button>
+      <button class="tab-btn" data-tab="data">Data</button>
+    </nav>
+
     <div class="content">
-      <!-- LLM Provider Section -->
-      <section class="settings-section">
-        <h2>AI Provider</h2>
-        <p class="section-description">
-          Choose your preferred provider and configure API access.
-        </p>
+      <!-- AI Provider Tab -->
+      <div class="tab-content active" id="ai-provider-tab">
+        <section class="settings-section">
+          <h2>AI Provider Configuration</h2>
+          <p class="section-description">
+            Choose your preferred provider and configure API access.
+          </p>
 
-        <div class="form-group">
-          <label for="provider-select">AI Provider</label>
-          <select id="provider-select" class="form-select">
-            <option value="">Select a provider...</option>
-            <option value="openrouter">OpenRouter (Multiple Models)</option>
-            <option value="openai">OpenAI (GPT Models)</option>
-            <option value="anthropic">Anthropic (Claude Models)</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="model-select">Model</label>
-          <select id="model-select" class="form-select" disabled>
-            <option value="">Select a model...</option>
-          </select>
-          <div class="help-text">
-            Choose a model that balances speed and accuracy for your needs.
+          <div class="form-group">
+            <label for="provider-select">AI Provider</label>
+            <select id="provider-select" class="form-select">
+              <option value="">Select a provider...</option>
+              <option value="openrouter">OpenRouter (Multiple Models)</option>
+              <option value="openai">OpenAI (GPT Models)</option>
+              <option value="anthropic">Anthropic (Claude Models)</option>
+            </select>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="api-key">API Key</label>
-          <div class="input-group">
+          <div class="form-group">
+            <label for="model-select">Model</label>
+            <select id="model-select" class="form-select" disabled>
+              <option value="">Select a model...</option>
+            </select>
+            <div class="help-text">
+              Choose a model that balances speed and accuracy for your needs.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="api-key">API Key</label>
+            <div class="input-group">
+              <input 
+                type="password" 
+                id="api-key" 
+                class="form-input" 
+                placeholder="Enter your API key..."
+                disabled
+              />
+              <button id="toggle-key-visibility" class="toggle-btn" disabled>👁️</button>
+            </div>
+            <div class="help-text">
+              Your API key is stored securely and never shared.
+              <a id="provider-docs-link" href="#" target="_blank" class="help-link">Get API Key</a>
+            </div>
+          </div>
+
+          <div id="api-status" class="status-indicator hidden">
+            <div class="status-content">
+              <span id="status-icon">⏳</span>
+              <span id="status-message">Testing API connection...</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2>Blocking Behavior</h2>
+          <p class="section-description">
+            Customize how the extension analyzes and blocks pages.
+          </p>
+
+          <div class="form-group">
+            <label for="confidence-threshold">
+              Confidence Threshold: <span id="threshold-value">75</span>%
+            </label>
             <input 
-              type="password" 
-              id="api-key" 
-              class="form-input" 
-              placeholder="Enter your API key..."
-              disabled
+              type="range" 
+              id="confidence-threshold" 
+              class="form-range"
+              min="0" 
+              max="100" 
+              value="75"
             />
-            <button id="toggle-key-visibility" class="toggle-btn" disabled>👁️</button>
-          </div>
-          <div class="help-text">
-            Your API key is stored securely and never shared.
-            <a id="provider-docs-link" href="#" target="_blank" class="help-link">Get API Key</a>
-          </div>
-        </div>
-
-        <div id="api-status" class="status-indicator hidden">
-          <div class="status-content">
-            <span id="status-icon">⏳</span>
-            <span id="status-message">Testing API connection...</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Blocking Behavior Section -->
-      <section class="settings-section">
-        <h2>Blocking Behavior</h2>
-        <p class="section-description">
-          Customize how the extension analyzes and blocks pages.
-        </p>
-
-        <div class="form-group">
-          <label for="confidence-threshold">
-            Confidence Threshold: <span id="threshold-value">75</span>%
-          </label>
-          <input 
-            type="range" 
-            id="confidence-threshold" 
-            class="form-range"
-            min="0" 
-            max="100" 
-            value="75"
-          />
-          <div class="threshold-labels">
-            <span>Permissive (0%)</span>
-            <span>Strict (100%)</span>
-          </div>
-          <div class="help-text">
-            Higher values block fewer pages but with higher confidence.
-            Lower values are more aggressive but may have false positives.
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="checkbox-group">
-            <label class="checkbox-label">
-              <input type="checkbox" id="enable-extension" checked>
-              <span class="checkbox-custom"></span>
-              Enable Focus Guard
-            </label>
-          </div>
-          <div class="help-text">
-            When disabled, all pages will be allowed through.
-          </div>
-        </div>
-      </section>
-
-      <!-- Advanced Settings Section -->
-      <section class="settings-section">
-        <h2>Advanced Settings</h2>
-        <p class="section-description">
-          Fine-tune performance and behavior settings.
-        </p>
-
-        <div class="form-group">
-          <label for="rate-limit">Requests per minute</label>
-          <input 
-            type="number" 
-            id="rate-limit" 
-            class="form-input"
-            min="1" 
-            max="60" 
-            value="20"
-          />
-          <div class="help-text">
-            Limit API requests to avoid hitting provider rate limits.
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="checkbox-group">
-            <label class="checkbox-label">
-              <input type="checkbox" id="enable-cache" checked>
-              <span class="checkbox-custom"></span>
-              Enable result caching
-            </label>
-          </div>
-          <div class="help-text">
-            Cache analysis results to reduce API calls for similar content.
-          </div>
-        </div>
-      </section>
-
-      <!-- Statistics Section -->
-      <section class="settings-section">
-        <h2>Usage Statistics</h2>
-        <p class="section-description">
-          Monitor your extension usage and performance.
-        </p>
-
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-value" id="total-requests">0</div>
-            <div class="stat-label">Pages Analyzed</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="blocked-pages">0</div>
-            <div class="stat-label">Pages Blocked</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="bypassed-pages">0</div>
-            <div class="stat-label">Bypasses Used</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="current-goals">0</div>
-            <div class="stat-label">Active Goals</div>
-          </div>
-        </div>
-
-        <!-- Token Usage Section -->
-        <div class="token-usage-section">
-          <h3>Token Usage (Last 7 Days)</h3>
-          
-          <div class="token-stats-grid">
-            <div class="token-stat-card">
-              <div class="token-stat-value" id="total-input-tokens">0</div>
-              <div class="token-stat-label">Input Tokens</div>
+            <div class="threshold-labels">
+              <span>Permissive (0%)</span>
+              <span>Strict (100%)</span>
             </div>
-            <div class="token-stat-card">
-              <div class="token-stat-value" id="total-output-tokens">0</div>
-              <div class="token-stat-label">Output Tokens</div>
-            </div>
-            <div class="token-stat-card">
-              <div class="token-stat-value" id="total-api-requests">0</div>
-              <div class="token-stat-label">API Requests</div>
+            <div class="help-text">
+              Higher values block fewer pages but with higher confidence.
+              Lower values are more aggressive but may have false positives.
             </div>
           </div>
 
-          <div class="provider-breakdown" id="provider-breakdown">
-            <!-- Provider-specific token usage will be populated here -->
+          <div class="form-group">
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="enable-extension" checked>
+                <span class="checkbox-custom"></span>
+                Enable Focus Guard
+              </label>
+            </div>
+            <div class="help-text">
+              When disabled, all pages will be allowed through.
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div class="form-group">
-          <button id="reset-stats" class="btn btn-secondary">
-            Reset Statistics
-          </button>
-        </div>
-      </section>
+        <section class="settings-section">
+          <h2>Advanced Settings</h2>
+          <p class="section-description">
+            Fine-tune performance and behavior settings.
+          </p>
 
-      <!-- Data Management Section -->
-      <section class="settings-section">
-        <h2>Data Management</h2>
-        <p class="section-description">
-          Export, import, or reset your extension data.
-        </p>
+          <div class="form-group">
+            <label for="rate-limit">Requests per minute</label>
+            <input 
+              type="number" 
+              id="rate-limit" 
+              class="form-input"
+              min="1" 
+              max="60" 
+              value="20"
+            />
+            <div class="help-text">
+              Limit API requests to avoid hitting provider rate limits.
+            </div>
+          </div>
 
-        <div class="button-group">
-          <button id="export-data" class="btn btn-secondary">
-            Export Settings
-          </button>
-          <button id="import-data" class="btn btn-secondary">
-            Import Settings
-          </button>
-          <button id="reset-all" class="btn btn-danger">
-            Reset All Data
-          </button>
-        </div>
+          <div class="form-group">
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="enable-cache" checked>
+                <span class="checkbox-custom"></span>
+                Enable result caching
+              </label>
+            </div>
+            <div class="help-text">
+              Cache analysis results to reduce API calls for similar content.
+            </div>
+          </div>
+        </section>
+      </div>
 
-        <input type="file" id="import-file" accept=".json" class="hidden">
-      </section>
+      <!-- Whitelist Tab -->
+      <div class="tab-content" id="whitelist-tab">
+        <section class="settings-section">
+          <h2>Whitelisted Domains</h2>
+          <p class="section-description">
+            Add domains that should never be blocked. Subdomains are automatically included (e.g., adding "example.com" allows "sub.example.com").
+          </p>
+
+          <div class="form-group">
+            <label for="domain-input">Add Domain</label>
+            <div class="input-group">
+              <input 
+                type="text" 
+                id="domain-input" 
+                class="form-input" 
+                placeholder="Enter domain (e.g., example.com)"
+              />
+              <button id="add-domain-btn" class="btn btn-primary">Add</button>
+            </div>
+            <div class="help-text">
+              Enter domain without protocol or www (e.g., "github.com" not "https://www.github.com").
+            </div>
+            <div id="domain-error" class="error-message hidden"></div>
+          </div>
+
+          <div class="whitelist-container">
+            <div class="whitelist-header">
+              <h3>Whitelisted Domains (<span id="whitelist-count">0</span>/50)</h3>
+            </div>
+            <div id="whitelist-list" class="whitelist-list">
+              <!-- Whitelist items will be populated here -->
+            </div>
+            <div id="empty-whitelist" class="empty-state">
+              <p>No domains whitelisted yet</p>
+              <p class="empty-subtitle">Add domains above to skip analysis for those sites</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Statistics Tab -->
+      <div class="tab-content" id="statistics-tab">
+        <section class="settings-section">
+          <h2>Usage Statistics</h2>
+          <p class="section-description">
+            Monitor your extension usage and performance.
+          </p>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="total-requests">0</div>
+              <div class="stat-label">Pages Analyzed</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="blocked-pages">0</div>
+              <div class="stat-label">Pages Blocked</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="bypassed-pages">0</div>
+              <div class="stat-label">Bypasses Used</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="current-goals">0</div>
+              <div class="stat-label">Active Goals</div>
+            </div>
+          </div>
+
+          <!-- Token Usage Section -->
+          <div class="token-usage-section">
+            <h3>Token Usage (Last 7 Days)</h3>
+            
+            <div class="token-stats-grid">
+              <div class="token-stat-card">
+                <div class="token-stat-value" id="total-input-tokens">0</div>
+                <div class="token-stat-label">Input Tokens</div>
+              </div>
+              <div class="token-stat-card">
+                <div class="token-stat-value" id="total-output-tokens">0</div>
+                <div class="token-stat-label">Output Tokens</div>
+              </div>
+              <div class="token-stat-card">
+                <div class="token-stat-value" id="total-api-requests">0</div>
+                <div class="token-stat-label">API Requests</div>
+              </div>
+            </div>
+
+            <div class="provider-breakdown" id="provider-breakdown">
+              <!-- Provider-specific token usage will be populated here -->
+            </div>
+          </div>
+
+          <div class="form-group">
+            <button id="reset-stats" class="btn btn-secondary">
+              Reset Statistics
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Data Management Tab -->
+      <div class="tab-content" id="data-tab">
+        <section class="settings-section">
+          <h2>Data Management</h2>
+          <p class="section-description">
+            Export, import, or reset your extension data.
+          </p>
+
+          <div class="button-group">
+            <button id="export-data" class="btn btn-secondary">
+              Export Settings
+            </button>
+            <button id="import-data" class="btn btn-secondary">
+              Import Settings
+            </button>
+            <button id="reset-all" class="btn btn-danger">
+              Reset All Data
+            </button>
+          </div>
+
+          <input type="file" id="import-file" accept=".json" class="hidden">
+        </section>
+      </div>
     </div>
 
     <!-- Footer -->

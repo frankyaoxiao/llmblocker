@@ -844,6 +844,22 @@ class BackgroundService {
         return;
       }
 
+      // Check if domain is whitelisted
+      const isWhitelisted = await this.isDomainWhitelisted(url);
+      console.log('[Focus Guard] Whitelist check result:', { url, isWhitelisted });
+      if (isWhitelisted) {
+        console.log('[Focus Guard] Domain is whitelisted, allowing page');
+        sendResponse({
+          type: CONSTANTS.MESSAGE_TYPES.ANALYSIS_RESULT,
+          payload: {
+            shouldBlock: false,
+            confidence: 0,
+            reasoning: 'Domain whitelisted'
+          }
+        });
+        return;
+      }
+
       console.log('[Focus Guard] Extension enabled, proceeding with analysis');
 
       // Get current goals and settings
@@ -1020,6 +1036,91 @@ class BackgroundService {
       console.error('[Focus Guard] Failed to get settings:', error);
       sendResponse({ success: false, error: error.message });
     }
+  }
+
+  /**
+   * Check if domain is whitelisted
+   */
+  async isDomainWhitelisted(url) {
+    try {
+      const result = await chrome.storage.sync.get(CONSTANTS.STORAGE_KEYS.WHITELIST);
+      const whitelist = result[CONSTANTS.STORAGE_KEYS.WHITELIST] || [];
+      const domain = this.extractDomain(url);
+      
+      console.log('[Focus Guard] Whitelist debug:', {
+        url,
+        domain,
+        whitelist,
+        storageKey: CONSTANTS.STORAGE_KEYS.WHITELIST,
+        rawResult: result
+      });
+      
+      if (!domain) return false;
+      
+      // Check exact match first
+      if (whitelist.includes(domain)) {
+        console.log('[Focus Guard] Exact whitelist match found:', domain);
+        return true;
+      }
+      
+      // Check if any whitelisted domain is a parent domain
+      const parentMatch = whitelist.some(whitelistedDomain => {
+        const isMatch = domain === whitelistedDomain || domain.endsWith('.' + whitelistedDomain);
+        console.log('[Focus Guard] Checking parent match:', { domain, whitelistedDomain, isMatch });
+        return isMatch;
+      });
+      
+      console.log('[Focus Guard] Final whitelist result:', parentMatch);
+      return parentMatch;
+    } catch (error) {
+      console.error('[Focus Guard] Error checking whitelist:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Extract domain from URL
+   */
+  extractDomain(url) {
+    try {
+      if (!url) return null;
+      
+      // Handle relative URLs
+      if (!url.includes('://')) {
+        url = 'https://' + url;
+      }
+      
+      const urlObj = new URL(url);
+      return this.normalizeDomain(urlObj.hostname);
+    } catch (error) {
+      // Fallback to manual parsing
+      return this.normalizeDomain(url);
+    }
+  }
+
+  /**
+   * Normalize domain (remove protocol, www, trailing slash, etc.)
+   */
+  normalizeDomain(input) {
+    if (!input || typeof input !== 'string') {
+      return '';
+    }
+    
+    let domain = input.toLowerCase().trim();
+    
+    // Remove protocol
+    domain = domain.replace(/^https?:\/\//, '');
+    
+    // Remove www prefix
+    domain = domain.replace(/^www\./, '');
+    
+    // Remove path, query, and fragment
+    domain = domain.split('/')[0].split('?')[0].split('#')[0];
+    
+    // Remove port
+    domain = domain.split(':')[0];
+    
+    return domain;
   }
 }
 
