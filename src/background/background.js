@@ -20,11 +20,15 @@ class BackgroundService {
    */
   async initialize() {
     try {
+      console.log('[Focus Guard] Background service initializing...');
+      
       // Load initial settings
       this.settings = await StorageManager.getSettings();
+      console.log('[Focus Guard] Settings loaded:', this.settings);
       
       // Set up message listeners
       chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        console.log('[Focus Guard] Received message:', message.type, 'from tab:', sender.tab?.id);
         this.handleMessage(message, sender, sendResponse);
         return true; // Keep message channel open for async responses
       });
@@ -39,9 +43,9 @@ class BackgroundService {
         this.llmClient.getCacheStats(); // This also cleans up expired entries
       }, 60000); // Every minute
 
-      Utils.log('info', 'Background service initialized');
+      console.log('[Focus Guard] Background service initialized successfully');
     } catch (error) {
-      Utils.log('error', 'Failed to initialize background service', error);
+      console.error('[Focus Guard] Failed to initialize background service:', error);
     }
   }
 
@@ -94,7 +98,10 @@ class BackgroundService {
     const { url, title, content, timestamp } = payload;
     const tabId = sender.tab?.id;
 
+    console.log('[Focus Guard] Handling page analysis for:', { url, title, tabId });
+
     if (!tabId) {
+      console.error('[Focus Guard] No tab ID available');
       sendResponse({ error: 'No tab ID available' });
       return;
     }
@@ -102,7 +109,7 @@ class BackgroundService {
     try {
       // Check if extension is enabled
       if (!this.settings.enabled) {
-        Utils.log('info', 'Extension disabled, allowing page');
+        console.log('[Focus Guard] Extension disabled, allowing page');
         sendResponse({
           type: CONSTANTS.MESSAGE_TYPES.ANALYSIS_RESULT,
           payload: {
@@ -113,6 +120,8 @@ class BackgroundService {
         });
         return;
       }
+
+      console.log('[Focus Guard] Extension enabled, proceeding with analysis');
 
       // Prevent duplicate analyses for the same tab
       const pendingKey = `${tabId}-${url}`;

@@ -23,9 +23,9 @@ export const CONSTANTS = {
   // Default settings
   DEFAULT_SETTINGS: {
     enabled: true,
-    confidenceThreshold: 60,
+    confidenceThreshold: 75,
     provider: 'openrouter',
-    model: 'anthropic/claude-3-haiku',
+    model: 'openai/gpt-5-mini',
     apiKey: '',
     rateLimit: {
       requestsPerMinute: 20,
@@ -39,11 +39,16 @@ export const CONSTANTS = {
       name: 'OpenRouter',
       baseUrl: 'https://openrouter.ai/api/v1',
       models: [
-        'anthropic/claude-3-haiku',
-        'anthropic/claude-3-sonnet',
-        'openai/gpt-3.5-turbo',
-        'openai/gpt-4',
-        'meta-llama/llama-2-70b-chat'
+        'openai/gpt-5',
+        'openai/gpt-5-mini', 
+        'openai/gpt-5-nano',
+        'anthropic/claude-opus-4.1',
+        'anthropic/claude-sonnet-4',
+        'openai/gpt-4o',
+        'openai/gpt-4o-mini',
+        'anthropic/claude-3-5-sonnet',
+        'meta-llama/llama-3.1-70b-instruct',
+        'google/gemini-pro-1.5'
       ],
       keyRequired: true
     },
@@ -51,9 +56,12 @@ export const CONSTANTS = {
       name: 'OpenAI',
       baseUrl: 'https://api.openai.com/v1',
       models: [
-        'gpt-3.5-turbo',
-        'gpt-4',
-        'gpt-4-turbo'
+        'gpt-5',
+        'gpt-5-mini',
+        'gpt-5-nano', 
+        'gpt-5-chat-latest',
+        'gpt-4o',
+        'gpt-4o-mini'
       ],
       keyRequired: true
     },
@@ -61,9 +69,10 @@ export const CONSTANTS = {
       name: 'Anthropic',
       baseUrl: 'https://api.anthropic.com',
       models: [
-        'claude-3-haiku-20240307',
-        'claude-3-sonnet-20240229',
-        'claude-3-opus-20240229'
+        'claude-opus-4.1',
+        'claude-sonnet-4',
+        'claude-3-5-sonnet-20241022',
+        'claude-3-5-haiku-20241022'
       ],
       keyRequired: true
     }
@@ -103,11 +112,18 @@ Title: {title}
 Content: {content}
 
 INSTRUCTIONS:
+Think step by step to evaluate this webpage:
+
+1. GOAL ANALYSIS: What is the user trying to accomplish based on their goals?
+2. CONTENT ANALYSIS: What is this webpage primarily about?
+3. ALIGNMENT ASSESSMENT: How well does this webpage content relate to the user's goals?
+4. DISTRACTION POTENTIAL: Could this webpage lead the user away from their goals?
+
 Rate from 0-100 how well this webpage supports the user's goals:
 - 0-20: Actively distracts from goals (social media, entertainment unrelated to goals)
-- 21-40: Likely distracts or provides no value toward goals
+- 21-40: Likely distracts or provides no value toward goals  
 - 41-60: Neutral or unclear relationship to goals
-- 61-80: Likely helpful for achieving goals  
+- 61-80: Likely helpful for achieving goals
 - 81-100: Directly supports goal achievement
 
-Respond with only the number (0-100).`;
+Think through your reasoning, then respond with only the final number (0-100).`;

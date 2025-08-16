@@ -19,11 +19,15 @@ class ContentAnalyzer {
    */
   async initialize() {
     try {
+      console.log('[Focus Guard] Content script initializing...', { url: window.location.href });
+      
       // Check if we should analyze this URL
       if (!Utils.shouldAnalyzeUrl(window.location.href)) {
-        Utils.log('info', 'Skipping analysis for URL', { url: window.location.href });
+        console.log('[Focus Guard] Skipping analysis for URL', { url: window.location.href });
         return;
       }
+      
+      console.log('[Focus Guard] URL approved for analysis');
 
       // Set up message listener for background script responses
       chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -60,28 +64,33 @@ class ContentAnalyzer {
    */
   async analyzeCurrentPage() {
     if (this.isAnalyzing) {
+      console.log('[Focus Guard] Analysis already in progress');
       return;
     }
 
     try {
       this.isAnalyzing = true;
+      console.log('[Focus Guard] Starting page analysis...');
       
       // Extract page content
       const title = Utils.getPageTitle();
       const content = Utils.extractPageContent();
       const url = Utils.getCurrentUrl();
 
+      console.log('[Focus Guard] Content extracted', { 
+        title, 
+        url, 
+        contentLength: content.length,
+        contentPreview: content.substring(0, 100) + '...'
+      });
+
       // Validate extracted content
       if (!content || content.trim().length < 50) {
-        Utils.log('info', 'Insufficient content for analysis', { url, contentLength: content.length });
+        console.log('[Focus Guard] Insufficient content for analysis', { url, contentLength: content.length });
         return;
       }
 
-      Utils.log('info', 'Analyzing page content', { 
-        url, 
-        title, 
-        contentLength: content.length 
-      });
+      console.log('[Focus Guard] Sending analysis request to background script');
 
       // Send analysis request to background script
       const message = {
@@ -94,10 +103,16 @@ class ContentAnalyzer {
         }
       };
 
-      chrome.runtime.sendMessage(message);
+      chrome.runtime.sendMessage(message, (response) => {
+        if (chrome.runtime.lastError) {
+          console.error('[Focus Guard] Error sending message to background:', chrome.runtime.lastError);
+        } else {
+          console.log('[Focus Guard] Message sent successfully, response:', response);
+        }
+      });
 
     } catch (error) {
-      Utils.log('error', 'Failed to analyze page', error);
+      console.error('[Focus Guard] Failed to analyze page:', error);
     } finally {
       this.isAnalyzing = false;
     }

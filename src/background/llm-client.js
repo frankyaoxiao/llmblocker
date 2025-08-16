@@ -37,7 +37,7 @@ class LLMProvider {
  * OpenRouter API provider
  */
 class OpenRouterProvider extends LLMProvider {
-  constructor(apiKey, model = 'anthropic/claude-3-haiku') {
+  constructor(apiKey, model = 'openai/gpt-5-mini') {
     super(apiKey, model);
     this.baseUrl = CONSTANTS.PROVIDERS.openrouter.baseUrl;
   }
@@ -52,21 +52,29 @@ class OpenRouterProvider extends LLMProvider {
   }
 
   async makeRequest(prompt) {
+    const requestBody = {
+      model: this.model,
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      max_tokens: 20,
+      temperature: 0.1,
+      stream: false
+    };
+
+    // Add GPT-5 specific parameters if using GPT-5 models
+    if (this.model.includes('gpt-5')) {
+      requestBody.reasoning_effort = 'minimal'; // Fast analysis for web filtering
+      requestBody.verbosity = 'low'; // Concise responses
+    }
+
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: JSON.stringify({
-        model: this.model,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_tokens: 10,
-        temperature: 0.1,
-        stream: false
-      })
+      body: JSON.stringify(requestBody)
     });
 
     const data = await this.handleResponse(response);
@@ -90,7 +98,7 @@ class OpenRouterProvider extends LLMProvider {
  * OpenAI API provider
  */
 class OpenAIProvider extends LLMProvider {
-  constructor(apiKey, model = 'gpt-3.5-turbo') {
+  constructor(apiKey, model = 'gpt-5-mini') {
     super(apiKey, model);
     this.baseUrl = CONSTANTS.PROVIDERS.openai.baseUrl;
   }
@@ -103,21 +111,29 @@ class OpenAIProvider extends LLMProvider {
   }
 
   async makeRequest(prompt) {
+    const requestBody = {
+      model: this.model,
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      max_tokens: 20,
+      temperature: 0.1,
+      stream: false
+    };
+
+    // Add GPT-5 specific parameters if using GPT-5 models
+    if (this.model.includes('gpt-5')) {
+      requestBody.reasoning_effort = 'minimal'; // Fast analysis for web filtering
+      requestBody.verbosity = 'low'; // Concise responses
+    }
+
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: JSON.stringify({
-        model: this.model,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_tokens: 10,
-        temperature: 0.1,
-        stream: false
-      })
+      body: JSON.stringify(requestBody)
     });
 
     const data = await this.handleResponse(response);
@@ -141,7 +157,7 @@ class OpenAIProvider extends LLMProvider {
  * Anthropic API provider
  */
 class AnthropicProvider extends LLMProvider {
-  constructor(apiKey, model = 'claude-3-haiku-20240307') {
+  constructor(apiKey, model = 'claude-sonnet-4') {
     super(apiKey, model);
     this.baseUrl = CONSTANTS.PROVIDERS.anthropic.baseUrl;
   }
@@ -150,7 +166,7 @@ class AnthropicProvider extends LLMProvider {
     return {
       ...super.getHeaders(),
       'x-api-key': this.apiKey,
-      'anthropic-version': '2023-06-01'
+      'anthropic-version': '2025-01-01' // Updated for Claude 4 support
     };
   }
 
@@ -160,7 +176,7 @@ class AnthropicProvider extends LLMProvider {
       headers: this.getHeaders(),
       body: JSON.stringify({
         model: this.model,
-        max_tokens: 10,
+        max_tokens: 20,
         temperature: 0.1,
         messages: [
           {
