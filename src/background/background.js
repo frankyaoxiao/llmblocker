@@ -1,8 +1,3 @@
-import { StorageManager } from '../shared/storage.js';
-import { CONSTANTS } from '../shared/constants.js';
-import { Utils } from '../shared/utils.js';
-import { LLMClient } from './llm-client.js';
-
 /**
  * Background Service Worker for Focus Guard extension
  */

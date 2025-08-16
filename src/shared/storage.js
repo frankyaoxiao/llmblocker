@@ -1,9 +1,7 @@
-import { CONSTANTS } from './constants.js';
-
 /**
  * Storage utility functions for Chrome extension
  */
-export class StorageManager {
+class StorageManager {
   
   /**
    * Get goals from storage

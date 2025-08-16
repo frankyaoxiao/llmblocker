@@ -1,7 +1,3 @@
-import { StorageManager } from '../shared/storage.js';
-import { CONSTANTS } from '../shared/constants.js';
-import { Utils } from '../shared/utils.js';
-
 /**
  * Options Page Controller
  */

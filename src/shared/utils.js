@@ -1,9 +1,7 @@
-import { CONSTANTS } from './constants.js';
-
 /**
  * Utility functions for the extension
  */
-export class Utils {
+class Utils {
   
   /**
    * Clean and truncate text content for LLM analysis
@@ -194,7 +192,6 @@ export class Utils {
       'chrome-extension://',
       'moz-extension://',
       'about:',
-      'file://',
       'data:',
       'javascript:'
     ];

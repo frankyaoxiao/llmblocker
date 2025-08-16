@@ -1,6 +1,3 @@
-import { CONSTANTS } from '../shared/constants.js';
-import { Utils } from '../shared/utils.js';
-
 /**
  * Abstract base class for LLM providers
  */
@@ -214,7 +211,7 @@ class AnthropicProvider extends LLMProvider {
 /**
  * Main LLM Client class
  */
-export class LLMClient {
+class LLMClient {
   constructor() {
     this.cache = new Map();
   }

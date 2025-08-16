@@ -1,6 +1,3 @@
-import { CONSTANTS } from '../shared/constants.js';
-import { Utils } from '../shared/utils.js';
-
 /**
  * Content Script for page analysis and blocking
  */
@@ -108,6 +105,10 @@ class ContentAnalyzer {
           console.error('[Focus Guard] Error sending message to background:', chrome.runtime.lastError);
         } else {
           console.log('[Focus Guard] Message sent successfully, response:', response);
+          // Handle the response directly since it contains the analysis result
+          if (response && response.type === CONSTANTS.MESSAGE_TYPES.ANALYSIS_RESULT) {
+            this.handleAnalysisResult(response.payload);
+          }
         }
       });
 
@@ -146,11 +147,15 @@ class ContentAnalyzer {
   handleAnalysisResult(result) {
     this.analysisResult = result;
     
-    Utils.log('info', 'Received analysis result', result);
+    console.log('[Focus Guard] Received analysis result', result);
+    console.log('[Focus Guard] Should block?', result.shouldBlock);
+    console.log('[Focus Guard] Confidence:', result.confidence);
 
     if (result.shouldBlock) {
+      console.log('[Focus Guard] Attempting to block page...');
       this.blockPage(result);
     } else {
+      console.log('[Focus Guard] Not blocking page');
       // Ensure page is not blocked
       this.unblockPage();
     }
@@ -160,26 +165,32 @@ class ContentAnalyzer {
    * Block the current page
    */
   blockPage(result) {
+    console.log('[Focus Guard] blockPage called, isBlocked:', this.isBlocked);
+    
     if (this.isBlocked) {
+      console.log('[Focus Guard] Page already blocked, skipping');
       return;
     }
 
     try {
+      console.log('[Focus Guard] Setting isBlocked to true');
       this.isBlocked = true;
       
       // Store original page content
+      console.log('[Focus Guard] Storing original page content');
       this.originalPageContent = document.body.innerHTML;
       
       // Create and inject blocking overlay
+      console.log('[Focus Guard] Creating blocking overlay');
       this.createBlockingOverlay(result);
       
-      Utils.log('info', 'Page blocked', { 
+      console.log('[Focus Guard] Page blocked successfully', { 
         confidence: result.confidence, 
         url: window.location.href 
       });
 
     } catch (error) {
-      Utils.log('error', 'Failed to block page', error);
+      console.error('[Focus Guard] Failed to block page', error);
       this.isBlocked = false;
     }
   }
@@ -188,9 +199,12 @@ class ContentAnalyzer {
    * Create blocking overlay UI
    */
   createBlockingOverlay(result) {
+    console.log('[Focus Guard] createBlockingOverlay called');
+    
     // Remove any existing overlay
     this.removeBlockingOverlay();
 
+    console.log('[Focus Guard] Creating overlay element');
     const overlay = document.createElement('div');
     overlay.id = CONSTANTS.UI.BLOCKING_OVERLAY_ID;
     overlay.className = 'focus-guard-overlay';
@@ -237,10 +251,13 @@ class ContentAnalyzer {
     `;
 
     // Insert overlay into page
+    console.log('[Focus Guard] Clearing document body');
     document.body.innerHTML = '';
+    console.log('[Focus Guard] Appending overlay to body');
     document.body.appendChild(overlay);
 
     // Add event listeners
+    console.log('[Focus Guard] Adding event listeners');
     document.getElementById('focus-guard-bypass').addEventListener('click', () => {
       this.handleBypass();
     });
@@ -250,7 +267,10 @@ class ContentAnalyzer {
     });
 
     // Load and display current goals
+    console.log('[Focus Guard] Loading goals for overlay');
     this.loadGoalsForOverlay();
+    
+    console.log('[Focus Guard] Blocking overlay created and displayed');
   }
 
   /**

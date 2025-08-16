@@ -1,5 +1,5 @@
 // Application constants
-export const CONSTANTS = {
+const CONSTANTS = {
   // Storage keys
   STORAGE_KEYS: {
     GOALS: 'focus_guard_goals',
@@ -102,7 +102,7 @@ export const CONSTANTS = {
 };
 
 // Prompt template for LLM analysis
-export const ANALYSIS_PROMPT = `TASK: Analyze if this webpage aligns with the user's current goals.
+const ANALYSIS_PROMPT = `TASK: Analyze if this webpage aligns with the user's current goals.
 
 USER GOALS:
 {goals}
