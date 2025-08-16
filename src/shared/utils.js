@@ -38,16 +38,19 @@ class Utils {
    */
   static extractPageContent() {
     try {
-      // Remove unwanted elements
+      // Create a clone of the document body to avoid modifying the live page
+      const bodyClone = document.body.cloneNode(true);
+      
+      // Remove unwanted elements from the clone
       CONSTANTS.CONTENT.UNWANTED_SELECTORS.forEach(selector => {
-        const elements = document.querySelectorAll(selector);
+        const elements = bodyClone.querySelectorAll(selector);
         elements.forEach(el => el.remove());
       });
 
-      // Try to find main content areas first
+      // Try to find main content areas first in the clone
       let content = '';
       for (const selector of CONSTANTS.CONTENT.CONTENT_SELECTORS) {
-        const element = document.querySelector(selector);
+        const element = bodyClone.querySelector(selector);
         if (element) {
           content = element.innerText || element.textContent || '';
           if (content.trim().length > 100) {
@@ -56,9 +59,9 @@ class Utils {
         }
       }
 
-      // Fallback to body if no main content found
+      // Fallback to cloned body if no main content found
       if (!content || content.trim().length < 100) {
-        content = document.body.innerText || document.body.textContent || '';
+        content = bodyClone.innerText || bodyClone.textContent || '';
       }
 
       return this.cleanTextContent(content);
